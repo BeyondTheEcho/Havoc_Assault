@@ -18,9 +18,23 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	void CheckReverseDirection();
+	void MoveTowardsCurrentWaypoint(float DeltaTime);
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditAnywhere, Category="Platform Config")
+	float m_Speed = 100.0f;
+	UPROPERTY(EditAnywhere, Category = "Platform Config")
+	AActor* m_WaypointStart;
+	UPROPERTY(EditAnywhere, Category = "Platform Config")
+	AActor* m_WaypointEnd;
+	UPROPERTY(EditAnywhere, Category = "Platform Config")
+	float m_TargetDistanceTolerance = 5.0f;
+
+	FVector m_StartPosition;
+	AActor* m_CurrentWaypoint;
 
 };
