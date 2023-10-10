@@ -6,9 +6,17 @@
 // Sets default values
 AMovingPlatform::AMovingPlatform()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Create root component (if needed)
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+
+	// Initialize properties
+	m_StartWaypoint = CreateDefaultSubobject<USceneComponent>(TEXT("StartPoint"));
+	m_StartWaypoint->SetupAttachment(RootComponent);
+
+	m_EndWaypoint = CreateDefaultSubobject<USceneComponent>(TEXT("EndPoint"));
+	m_EndWaypoint->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -16,13 +24,12 @@ void AMovingPlatform::BeginPlay()
 {
 	Super::BeginPlay();
 
-	m_StartPosition = GetActorLocation();
+	m_StartPoint = m_StartWaypoint->GetComponentLocation();
+	m_EndPoint = m_EndWaypoint->GetComponentLocation();
 
-	if (m_WaypointStart)
-	{
-		m_CurrentWaypoint = m_WaypointEnd;
-		SetActorLocation(m_WaypointStart->GetActorLocation());
-	}
+	m_HeadingToEndPoint = true;
+	m_CurrentWaypoint = m_EndPoint;
+	SetActorLocation(m_StartPoint);
 }
 
 // Called every frame
@@ -37,17 +44,19 @@ void AMovingPlatform::Tick(float DeltaTime)
 
 void AMovingPlatform::CheckReverseDirection()
 {
-	FVector locationDifference = GetActorLocation() - m_CurrentWaypoint->GetActorLocation();
+	FVector locationDifference = GetActorLocation() - m_CurrentWaypoint;
 
 	if (locationDifference.SizeSquared() <= (m_TargetDistanceTolerance * m_TargetDistanceTolerance))
 	{
-		if (m_CurrentWaypoint == m_WaypointStart)
+		if (m_HeadingToEndPoint)
 		{
-			m_CurrentWaypoint = m_WaypointEnd;
+			m_HeadingToEndPoint = !m_HeadingToEndPoint;
+			m_CurrentWaypoint = m_StartPoint;
 		}
 		else
 		{
-			m_CurrentWaypoint = m_WaypointStart;
+			m_HeadingToEndPoint = !m_HeadingToEndPoint;
+			m_CurrentWaypoint = m_EndPoint;
 		}
 	}
 }
@@ -55,9 +64,8 @@ void AMovingPlatform::CheckReverseDirection()
 void AMovingPlatform::MoveTowardsCurrentWaypoint(float DeltaTime)
 {
 	FVector currentLocation = GetActorLocation();
-	FVector targetLocation = m_CurrentWaypoint->GetActorLocation();
 
-	FVector direction = targetLocation - currentLocation;
+	FVector direction = m_CurrentWaypoint - currentLocation;
 	direction.Normalize();
 
 	currentLocation += direction * m_Speed * DeltaTime;

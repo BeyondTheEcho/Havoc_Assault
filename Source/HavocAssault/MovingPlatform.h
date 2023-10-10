@@ -27,14 +27,17 @@ public:
 
 	UPROPERTY(EditAnywhere, Category="Platform Config")
 	float m_Speed = 100.0f;
-	UPROPERTY(EditAnywhere, Category = "Platform Config")
-	AActor* m_WaypointStart;
-	UPROPERTY(EditAnywhere, Category = "Platform Config")
-	AActor* m_WaypointEnd;
+
 	UPROPERTY(EditAnywhere, Category = "Platform Config")
 	float m_TargetDistanceTolerance = 5.0f;
 
-	FVector m_StartPosition;
-	AActor* m_CurrentWaypoint;
+	bool m_HeadingToEndPoint = true;
+	FVector m_StartPoint;
+	FVector m_EndPoint;
+	FVector m_CurrentWaypoint;
 
+	UPROPERTY(EditAnywhere, Category = "Platform Config")
+	USceneComponent* m_StartWaypoint;
+	UPROPERTY(EditAnywhere, Category = "Platform Config")
+	USceneComponent* m_EndWaypoint;
 };
