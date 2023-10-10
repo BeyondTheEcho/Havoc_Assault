@@ -7,22 +7,29 @@
 AMovingPlatform::AMovingPlatform()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	// Create root component (if needed)
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-
-	// Initialize properties
-	m_StartWaypoint = CreateDefaultSubobject<USceneComponent>(TEXT("StartPoint"));
-	m_StartWaypoint->SetupAttachment(RootComponent);
-
-	m_EndWaypoint = CreateDefaultSubobject<USceneComponent>(TEXT("EndPoint"));
-	m_EndWaypoint->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
 void AMovingPlatform::BeginPlay()
 {
 	Super::BeginPlay();
+
+	TArray<USceneComponent*> allSceneComponents;
+	GetComponents<USceneComponent>(allSceneComponents);
+
+	for (USceneComponent* SceneComponent : allSceneComponents)
+	{
+		FString ComponentName = SceneComponent->GetName();
+
+		if (ComponentName.Equals(TEXT("Start Point")))
+		{
+			m_StartWaypoint = SceneComponent;
+		}
+		else if (ComponentName.Equals(TEXT("End Point")))
+		{
+			m_EndWaypoint = SceneComponent;
+		}
+	}
 
 	m_StartPoint = m_StartWaypoint->GetComponentLocation();
 	m_EndPoint = m_EndWaypoint->GetComponentLocation();
@@ -72,6 +79,3 @@ void AMovingPlatform::MoveTowardsCurrentWaypoint(float DeltaTime)
 
 	SetActorLocation(currentLocation);
 }
-
-
-
